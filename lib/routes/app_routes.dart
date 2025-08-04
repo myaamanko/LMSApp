@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../views/auth/login_signup_screen.dart';
+import '../views/auth/sign_in_screen.dart.dart';
 import '../views/auth/role_selection_screen.dart';
+import '../views/auth/sign_up_screen.dart';
 import '../views/onboarding/onboarding_screen.dart';
 import '../views/splash/splash_screen.dart';
 
@@ -12,6 +13,8 @@ class AppRoutes {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
   static const String login = '/login';
+  static const String signup = '/signup';
+
   static const String register = '/register';
   static const String studentDashboard = '/student_dashboard';
   static const String lecturerDashboard = '/lecturer_dashboard';
@@ -21,7 +24,8 @@ class AppRoutes {
     splash: (context) => const SplashScreen(),
     onboarding: (context) => const OnboardingScreen(),
     roleSelection: (context) => const RoleSelectionScreen(),
-    login: (context) => const LoginSignupScreen(),
+    login: (context) => const SignInScreen(),
+    signup: (context) => const SignUpScreen(),
     // register: (context) => const RegisterScreen(),
     // studentDashboard: (context) => const StudentDashboard(),
     // lecturerDashboard: (context) => const LecturerDashboard(),

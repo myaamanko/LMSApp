@@ -19,7 +19,7 @@ class RoleSelectionScreen extends StatelessWidget {
     final isSmallScreen = size.height < 600;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),

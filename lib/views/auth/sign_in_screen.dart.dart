@@ -1,201 +1,125 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
 import '../../routes/app_routes.dart';
 
-class LoginSignupScreen extends StatefulWidget {
-  const LoginSignupScreen({super.key});
+class SignInScreen extends StatefulWidget {
+  const SignInScreen({super.key});
 
   @override
-  State<LoginSignupScreen> createState() => _LoginSignupScreenState();
+  State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _LoginSignupScreenState extends State<LoginSignupScreen> {
-  bool isLogin = true;
-
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _usernameController = TextEditingController(); // Only for signup
+class _SignInScreenState extends State<SignInScreen> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  bool showPassword = false;
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final padding = size.height * 0.03;
 
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: padding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Toggle tabs
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () => setState(() => isLogin = false),
-                    child: Column(
-                      children: [
-                        Text(
-                          "Sign-up",
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: !isLogin ? Colors.white : Colors.white38,
-                          ),
-                        ),
-                        if (!isLogin)
-                          Container(
-                            margin: const EdgeInsets.only(top: 4),
-                            height: 2,
-                            width: 60,
-                            color: Colors.white,
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                  GestureDetector(
-                    onTap: () => setState(() => isLogin = true),
-                    child: Column(
-                      children: [
-                        Text(
-                          "Log-in",
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: isLogin ? Colors.white : Colors.white38,
-                          ),
-                        ),
-                        if (isLogin)
-                          Container(
-                            margin: const EdgeInsets.only(top: 4),
-                            height: 2,
-                            width: 60,
-                            color: Colors.white,
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
+      appBar: AppBar(
+        automaticallyImplyLeading: true,
+        title: const Text(''),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: Colors.black,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Sign in', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 6),
+            const Text('Please Sign in with your account', style: TextStyle(fontSize: 14)),
+            const SizedBox(height: 30),
+            _buildInput('Email Here', emailController, false),
+            const SizedBox(height: 16),
+            _buildInput('Password', passwordController, true),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text('Forget Password?', style: TextStyle(color: Colors.grey.shade600)),
+            ),
+            const SizedBox(height: 30),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                onPressed: () {},
+                child: const Text('SIGN IN', style: TextStyle(fontSize: 16)),
               ),
-              SizedBox(height: size.height * 0.05),
-
-              // Fields
-              if (!isLogin) ...[
-                _buildInput("Username", Icons.person, _usernameController),
-                const SizedBox(height: 20),
+            ),
+            const SizedBox(height: 30),
+            Row(
+              children: const [
+                Expanded(child: Divider()),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Text('Or Sign in with'),
+                ),
+                Expanded(child: Divider()),
               ],
-              _buildInput("Email address", Icons.email, _emailController),
-              const SizedBox(height: 20),
-              _buildInput("Password", Icons.lock, _passwordController, isPassword: true),
-              const SizedBox(height: 30),
-
-              // Submit Button
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white10,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: _handleSubmit,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+            ),
+            const SizedBox(height: 16),
+            _buildSocialButton('Sign In with Facebook', 'facebook.png', Colors.blue),
+            const SizedBox(height: 12),
+            _buildSocialButton('Sign In with Google', 'google.png', Colors.white),
+            const SizedBox(height: 30),
+            Center(
+              child: TextButton(
+                onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.signup),
+                child: const Text.rich(
+                  TextSpan(
+                    text: "Didn't have an account? ",
                     children: [
-                      Text(
-                        isLogin ? "Log in" : "Sign up",
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const SizedBox(width: 10),
-                      const Icon(Icons.arrow_right_alt),
+                      TextSpan(
+                        text: "Sign up Here",
+                        style: TextStyle(color: Colors.blue),
+                      )
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
-
-              // Social login
-              Center(
-                child: Text(
-                  isLogin ? "log in with" : "sign up with",
-                  style: const TextStyle(color: Colors.white70),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset('assets/images/google.png', height: 36), // Add your Google logo
-                  const SizedBox(width: 20),
-                  Image.asset('assets/images/facebook.png', height: 36), // Add your FB logo
-                ],
-              ),
-
-              const Spacer(),
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    // Navigate as guest
-                    Navigator.pushReplacementNamed(context, AppRoutes.studentDashboard);
-                  },
-                  child: const Text.rich(
-                    TextSpan(
-                      text: "Don't have an account? ",
-                      style: TextStyle(color: Colors.white70),
-                      children: [
-                        TextSpan(
-                          text: "Enter as Guest",
-                          style: TextStyle(color: Colors.orange),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            )
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildInput(String hint, IconData icon, TextEditingController controller, {bool isPassword = false}) {
+  Widget _buildInput(String hint, TextEditingController controller, bool isPassword) {
     return TextField(
       controller: controller,
-      obscureText: isPassword,
-      style: const TextStyle(color: Colors.white),
+      obscureText: isPassword && !showPassword,
       decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
-        prefixIcon: Icon(icon, color: Colors.black),
         hintText: hint,
-        hintStyle: const TextStyle(color: Colors.black54),
+        suffixIcon: isPassword
+            ? IconButton(
+          icon: Icon(showPassword ? Icons.visibility_off : Icons.visibility),
+          onPressed: () => setState(() => showPassword = !showPassword),
+        )
+            : null,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
 
-  void _handleSubmit() async {
-    final auth = Provider.of<AuthProvider>(context, listen: false);
-    if (isLogin) {
-      await auth.login(_emailController.text.trim(), _passwordController.text.trim());
-    } else {
-      await auth.register(
-        _usernameController.text.trim(),
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
-        auth.role ?? 'student',
-      );
-    }
-
-    if (auth.role == 'lecturer') {
-      Navigator.pushReplacementNamed(context, AppRoutes.lecturerDashboard);
-    } else {
-      Navigator.pushReplacementNamed(context, AppRoutes.studentDashboard);
-    }
+  Widget _buildSocialButton(String text, String iconAsset, Color color) {
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: OutlinedButton.icon(
+        icon: Image.asset('assets/images/$iconAsset', height: 20),
+        label: Text(text, style: const TextStyle(color: Colors.black)),
+        onPressed: () {},
+        style: OutlinedButton.styleFrom(
+          backgroundColor: color,
+          side: BorderSide(color: color == Colors.white ? Colors.grey.shade300 : color),
+        ),
+      ),
+    );
   }
 }
