@@ -17,24 +17,34 @@ class _SignInScreenState extends State<SignInScreen> {
 
   void _handleLogin() async {
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    await auth.login(emailController.text.trim(), passwordController.text.trim());
+    try {
+      await auth.login(emailController.text.trim(), passwordController.text.trim());
 
-    if (auth.role == 'lecturer') {
-      Navigator.pushReplacementNamed(context, AppRoutes.lecturerDashboard);
-    } else {
-      Navigator.pushReplacementNamed(context, AppRoutes.studentDashboard);
+      if (auth.role == 'lecturer') {
+        Navigator.pushReplacementNamed(context, AppRoutes.lecturerDashboard);
+      } else {
+        Navigator.pushReplacementNamed(context, AppRoutes.studentDashboard);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login failed: ${e.toString()}')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.black,
       ),
-      body: SingleChildScrollView(
+      body: auth.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -20,29 +20,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void _handleRegister() async {
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    await auth.register(
-      nameController.text.trim(),
-      emailController.text.trim(),
-      passwordController.text.trim(),
-      auth.role ?? 'student',
-    );
 
-    if (auth.role == 'lecturer') {
-      Navigator.pushReplacementNamed(context, AppRoutes.lecturerDashboard);
-    } else {
-      Navigator.pushReplacementNamed(context, AppRoutes.studentDashboard);
+    if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Passwords do not match")),
+      );
+      return;
+    }
+
+    try {
+      await auth.register(
+        nameController.text.trim(),
+        emailController.text.trim(),
+        passwordController.text.trim(),
+        auth.role ?? 'student',
+      );
+
+      if (auth.role == 'lecturer') {
+        Navigator.pushReplacementNamed(context, AppRoutes.lecturerDashboard);
+      } else {
+        Navigator.pushReplacementNamed(context, AppRoutes.studentDashboard);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sign up failed: ${e.toString()}')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.black,
       ),
-      body: SingleChildScrollView(
+      body: auth.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

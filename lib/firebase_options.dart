@@ -64,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '724733912319',
     projectId: 'lsmg-7238d',
     storageBucket: 'lsmg-7238d.firebasestorage.app',
+    iosClientId: '724733912319-ukrv4gmq0mhcoog9g1tmkdjp1d5c7mno.apps.googleusercontent.com',
     iosBundleId: 'com.example.lsm',
   );
 
@@ -73,6 +74,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '724733912319',
     projectId: 'lsmg-7238d',
     storageBucket: 'lsmg-7238d.firebasestorage.app',
+    iosClientId: '724733912319-ukrv4gmq0mhcoog9g1tmkdjp1d5c7mno.apps.googleusercontent.com',
     iosBundleId: 'com.example.lsm',
   );
 
@@ -85,4 +87,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'lsmg-7238d.firebasestorage.app',
     measurementId: 'G-BLSB0VP4X2',
   );
+
 }
