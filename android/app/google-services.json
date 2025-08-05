@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "724733912319",
+    "project_id": "lsmg-7238d",
+    "storage_bucket": "lsmg-7238d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:724733912319:android:1c00e99f1dfac2e3dcd8ca",
+        "android_client_info": {
+          "package_name": "com.example.lsm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNXURL9GDk9ncdVUP7yaSDmwq39IdTr3E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
