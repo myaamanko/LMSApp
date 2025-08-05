@@ -4,7 +4,7 @@ import '../services/auth_services.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
-  bool _isLoading = false;
+  final bool _isLoading = false;
   bool get isLoading => _isLoading;
   User? user;
   String? role;

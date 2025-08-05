@@ -11,7 +11,18 @@ plugins {
 android {
     namespace = "com.example.lsm"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "29.0.13113456"
+
+    defaultConfig {
+        // Unique Application ID
+        applicationId = "com.example.lsm"
+
+        // Use Flutter versions here; avoid duplicate minSdkVersion
+        minSdk = 23// e.g. 23
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -19,24 +30,13 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
-    }
-
-    defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.lsm"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        // Set jvmTarget as "11" string, not JavaVersion.toString()
+        jvmTarget = "11"
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Use debug signing config temporarily for release build (replace before production)
             signingConfig = signingConfigs.getByName("debug")
         }
     }

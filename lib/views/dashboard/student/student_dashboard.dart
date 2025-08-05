@@ -5,7 +5,6 @@ class StudentDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6F6FA),
@@ -21,7 +20,7 @@ class StudentDashboard extends StatelessWidget {
         actions: [
           CircleAvatar(
             backgroundColor: Colors.grey.shade300,
-            child: Icon(Icons.person, color: Colors.black),
+            child: const Icon(Icons.person, color: Colors.black),
           ),
           const SizedBox(width: 16),
         ],
@@ -46,18 +45,22 @@ class StudentDashboard extends StatelessWidget {
           ],
         ),
       ),
+
+      // ✅ Bottom Navigation Bar is managed in StudentMainScreen
+      // Below is for reference only and must be handled by parent
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 0,
-        selectedItemColor: Colors.indigo,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-        ],
-      ),
+  type: BottomNavigationBarType.fixed,
+  currentIndex: 0, // 👈 will be managed from parent
+  selectedItemColor: Colors.indigo,
+  unselectedItemColor: Colors.grey,
+  items: const [
+    BottomNavigationBarItem(icon: Icon(Icons.home), label: ''), // index 0: Dashboard
+    BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: ''), // index 1: Calendar (future)
+    BottomNavigationBarItem(icon: Icon(Icons.chat), label: ''), // index 2: ChatScreen 👈
+    BottomNavigationBarItem(icon: Icon(Icons.person), label: ''), // index 3: Profile (future)
+  ],
+),
+
     );
   }
 
@@ -72,7 +75,9 @@ class StudentDashboard extends StatelessWidget {
               fillColor: Colors.white,
               filled: true,
               contentPadding: const EdgeInsets.symmetric(vertical: 0),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none),
             ),
           ),
         ),
@@ -95,13 +100,18 @@ class StudentDashboard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Hey Ashwin.', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('Hey Ashwin.',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 SizedBox(height: 6),
-                Text("Welcome back! Let's dive into your classes and keep moving toward your goals.", style: TextStyle(color: Colors.black54)),
+                Text(
+                    "Welcome back! Let's dive into your classes and keep moving toward your goals.",
+                    style: TextStyle(color: Colors.black54)),
               ],
             ),
           ),
-          Image.asset('assets/images/welcome_illustration.png', height: 60) // placeholder
+          Image.asset('assets/images/welcome_illustration.png',
+              height: 60) // placeholder
         ],
       ),
     );
@@ -135,9 +145,12 @@ class StudentDashboard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(stats[index]['title']!, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(stats[index]['title']!,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
-              Text(stats[index]['label']!, style: const TextStyle(color: Colors.black54)),
+              Text(stats[index]['label']!,
+                  style: const TextStyle(color: Colors.black54)),
             ],
           ),
         );
@@ -152,27 +165,35 @@ class StudentDashboard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: const [
-            Text('Notice Board', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Notice Board',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             Text('view all', style: TextStyle(color: Colors.indigo)),
           ],
         ),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(12)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(backgroundImage: AssetImage('assets/images/notice1.png')),
-                title: Text("The school's Annual Sports Day will be held on May 12, 2024."),
+                leading: CircleAvatar(
+                    backgroundImage:
+                        AssetImage('assets/images/notice1.png')),
+                title: Text(
+                    "The school's Annual Sports Day will be held on May 12, 2024."),
                 subtitle: Text('1h ago · by Principal'),
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(backgroundImage: AssetImage('assets/images/notice2.png')),
-                title: Text("Summer Holiday begins on May-25, 2024."),
+                leading: CircleAvatar(
+                    backgroundImage:
+                        AssetImage('assets/images/notice2.png')),
+                title:
+                    Text("Summer Holiday begins on May-25, 2024."),
                 subtitle: Text('3h ago · by Principal'),
               )
             ],
@@ -193,7 +214,8 @@ class StudentDashboard extends StatelessWidget {
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Test Score activity', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text('Test Score activity',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           SizedBox(height: 16),
           Placeholder(fallbackHeight: 100) // replace with chart later
         ],
@@ -203,9 +225,21 @@ class StudentDashboard extends StatelessWidget {
 
   Widget _buildResources() {
     final items = [
-      {'title': 'Books', 'icon': Icons.menu_book, 'color': Colors.pink.shade50},
-      {'title': 'Videos', 'icon': Icons.play_circle_fill, 'color': Colors.green.shade50},
-      {'title': 'Papers', 'icon': Icons.description, 'color': Colors.purple.shade50},
+      {
+        'title': 'Books',
+        'icon': Icons.menu_book,
+        'color': Colors.pink.shade50
+      },
+      {
+        'title': 'Videos',
+        'icon': Icons.play_circle_fill,
+        'color': Colors.green.shade50
+      },
+      {
+        'title': 'Papers',
+        'icon': Icons.description,
+        'color': Colors.purple.shade50
+      },
     ];
 
     return Column(
@@ -214,7 +248,8 @@ class StudentDashboard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: const [
-            Text('Resources', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Resources',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             Text('view all', style: TextStyle(color: Colors.indigo)),
           ],
         ),
@@ -234,7 +269,8 @@ class StudentDashboard extends StatelessWidget {
                   children: [
                     Icon(item['icon'] as IconData, size: 36),
                     const SizedBox(height: 8),
-                    Text(item['title'] as String, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(item['title'] as String,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),

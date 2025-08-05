@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lsm/providers/chat_provider.dart';
 import 'package:provider/provider.dart';
 import 'routes/app_routes.dart';
 import 'core/theme/app_theme.dart';
@@ -12,6 +13,7 @@ class LSMApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
         // Add more providers as you create them
       ],
       child: MaterialApp(
