@@ -19,7 +19,7 @@ class RoleSelectionScreen extends StatelessWidget {
     final isSmallScreen = size.height < 600;
 
     return Scaffold(
-
+      backgroundColor: Colors.black,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
@@ -29,7 +29,7 @@ class RoleSelectionScreen extends StatelessWidget {
               SizedBox(
                 height: isSmallScreen ? size.height * 0.25 : size.height * 0.35,
                 child: Image.asset(
-                  'assets/images/onboard_5.png',
+                  'assets/images/role_selection.png',
                   fit: BoxFit.contain,
                 ),
               ),
@@ -65,7 +65,7 @@ class RoleSelectionScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      icon: const Text('👩‍🏫'),
+                      icon: const Text('👨‍🏫'),
                       label: const Text('Educator'),
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.black,

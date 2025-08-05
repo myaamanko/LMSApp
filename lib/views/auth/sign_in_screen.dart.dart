@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../routes/app_routes.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -13,26 +15,33 @@ class _SignInScreenState extends State<SignInScreen> {
   final passwordController = TextEditingController();
   bool showPassword = false;
 
+  void _handleLogin() async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    await auth.login(emailController.text.trim(), passwordController.text.trim());
+
+    if (auth.role == 'lecturer') {
+      Navigator.pushReplacementNamed(context, AppRoutes.lecturerDashboard);
+    } else {
+      Navigator.pushReplacementNamed(context, AppRoutes.studentDashboard);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: true,
-        title: const Text(''),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.black,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Sign in', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
-            const Text('Please Sign in with your account', style: TextStyle(fontSize: 14)),
+            const Text('Please Sign in with your account'),
             const SizedBox(height: 30),
             _buildInput('Email Here', emailController, false),
             const SizedBox(height: 16),
@@ -48,21 +57,12 @@ class _SignInScreenState extends State<SignInScreen> {
               height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                onPressed: () {},
+                onPressed: _handleLogin,
                 child: const Text('SIGN IN', style: TextStyle(fontSize: 16)),
               ),
             ),
             const SizedBox(height: 30),
-            Row(
-              children: const [
-                Expanded(child: Divider()),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Or Sign in with'),
-                ),
-                Expanded(child: Divider()),
-              ],
-            ),
+            _buildDivider('Or Sign in with'),
             const SizedBox(height: 16),
             _buildSocialButton('Sign In with Facebook', 'facebook.png', Colors.blue),
             const SizedBox(height: 12),
@@ -104,6 +104,19 @@ class _SignInScreenState extends State<SignInScreen> {
             : null,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
+    );
+  }
+
+  Widget _buildDivider(String text) {
+    return Row(
+      children: [
+        const Expanded(child: Divider()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Text(text),
+        ),
+        const Expanded(child: Divider()),
+      ],
     );
   }
 

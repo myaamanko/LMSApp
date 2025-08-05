@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lsm/views/dashboard/educator_dashboard.dart';
 import '../views/auth/sign_in_screen.dart.dart';
 import '../views/auth/role_selection_screen.dart';
 import '../views/auth/sign_up_screen.dart';
+import '../views/dashboard/student_dashboard.dart';
 import '../views/onboarding/onboarding_screen.dart';
 import '../views/splash/splash_screen.dart';
 
@@ -15,7 +17,7 @@ class AppRoutes {
   static const String login = '/login';
   static const String signup = '/signup';
 
-  static const String register = '/register';
+
   static const String studentDashboard = '/student_dashboard';
   static const String lecturerDashboard = '/lecturer_dashboard';
   static const String roleSelection = '/role_selection';
@@ -26,8 +28,9 @@ class AppRoutes {
     roleSelection: (context) => const RoleSelectionScreen(),
     login: (context) => const SignInScreen(),
     signup: (context) => const SignUpScreen(),
+
     // register: (context) => const RegisterScreen(),
-    // studentDashboard: (context) => const StudentDashboard(),
-    // lecturerDashboard: (context) => const LecturerDashboard(),
+    studentDashboard: (context) => const StudentDashboard(),
+    lecturerDashboard: (context) => const EducatorDashboard(),
   };
 }

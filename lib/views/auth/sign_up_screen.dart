@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../routes/app_routes.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -16,11 +18,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool showPassword = false;
   bool showConfirmPassword = false;
 
+  void _handleRegister() async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    await auth.register(
+      nameController.text.trim(),
+      emailController.text.trim(),
+      passwordController.text.trim(),
+      auth.role ?? 'student',
+    );
+
+    if (auth.role == 'lecturer') {
+      Navigator.pushReplacementNamed(context, AppRoutes.lecturerDashboard);
+    } else {
+      Navigator.pushReplacementNamed(context, AppRoutes.studentDashboard);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(''),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.black,
@@ -47,21 +64,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
               height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                onPressed: () {},
+                onPressed: _handleRegister,
                 child: const Text('SIGN UP', style: TextStyle(fontSize: 16)),
               ),
             ),
             const SizedBox(height: 30),
-            Row(
-              children: const [
-                Expanded(child: Divider()),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Or Sign up with'),
-                ),
-                Expanded(child: Divider()),
-              ],
-            ),
+            _buildDivider('Or Sign up with'),
             const SizedBox(height: 16),
             _buildSocialButton('Sign Up with Facebook', 'facebook.png', Colors.blue),
             const SizedBox(height: 12),
@@ -118,6 +126,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
+    );
+  }
+
+  Widget _buildDivider(String text) {
+    return Row(
+      children: [
+        const Expanded(child: Divider()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Text(text),
+        ),
+        const Expanded(child: Divider()),
+      ],
     );
   }
 
