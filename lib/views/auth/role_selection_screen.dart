@@ -29,7 +29,7 @@ class RoleSelectionScreen extends StatelessWidget {
               SizedBox(
                 height: isSmallScreen ? size.height * 0.25 : size.height * 0.35,
                 child: Image.asset(
-                  'assets/images/role_selection.png',
+                  'assets/images/onboard_5.png',
                   fit: BoxFit.contain,
                 ),
               ),
