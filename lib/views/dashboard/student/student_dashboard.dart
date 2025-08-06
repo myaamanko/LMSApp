@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../../widgets/student_drawer.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class StudentDashboard extends StatelessWidget {
   const StudentDashboard({super.key});
@@ -54,10 +55,10 @@ class StudentDashboard extends StatelessWidget {
                   ),
             ),
             actions: [
-              if (imageUrl.isNotEmpty)
-                CircleAvatar(backgroundImage: NetworkImage(imageUrl))
-              else
-                const CircleAvatar(child: Icon(Icons.person)),
+              CircleAvatar(
+                backgroundColor: Colors.grey.shade300,
+                child: const Icon(Icons.person, color: Colors.black),
+              ),
               const SizedBox(width: 16),
             ],
           ),
@@ -172,10 +173,10 @@ class StudentDashboard extends StatelessWidget {
     int rewardPoints,
   ) {
     final stats = [
-      {'title': '$attendance%', 'label': 'Attendance'},
-      {'title': '$taskCompleted+', 'label': 'Task Completed'},
-      {'title': '$taskInProgress%', 'label': 'Task in Progress'},
-      {'title': '$rewardPoints', 'label': 'Reward Points'},
+      {'title': '$attendance%', 'label': 'Attendance','icon':'assets/images/people.png'},
+      {'title': '$taskCompleted+', 'label': 'Task Completed','icon':'assets/images/task.png'},
+      {'title': '$taskInProgress%', 'label': 'Task in Progress','icon':'assets/images/progress.png'},
+      {'title': '$rewardPoints', 'label': 'Reward Points','icon':'assets/images/award.png'},
     ];
 
     return GridView.builder(
@@ -199,12 +200,17 @@ class StudentDashboard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                stats[index]['title']!,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: [Image.asset(stats[index]['icon']!),
+                const SizedBox(width: 4),
+                  Text(
+                    stats[index]['title']!,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 4),
               Text(
@@ -266,39 +272,170 @@ class StudentDashboard extends StatelessWidget {
     );
   }
 
+  // Widget _buildTestScoreActivity() {
+  //   return Container(
+  //     width: double.infinity,
+  //     padding: const EdgeInsets.all(16),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(12),
+  //     ),
+  //     child: const Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Text(
+  //           'Test Score activity',
+  //           style: TextStyle(fontWeight: FontWeight.bold),
+  //         ),
+  //         SizedBox(height: 16),
+  //         Placeholder(fallbackHeight: 100),
+  //       ],
+  //     ),
+  //   );
+  // }
+  
+
   Widget _buildTestScoreActivity() {
+    final testScores = [
+      FlSpot(0, 60),
+      FlSpot(1, 75),
+      FlSpot(2, 65),
+      FlSpot(3, 80),
+      FlSpot(4, 70),
+      FlSpot(5, 90),
+      FlSpot(6, 60),
+    ];
+
+    final dateLabels = ['Apr10', 'Apr11', 'Apr12', 'Apr13', 'Apr14', 'Apr15', 'Apr16'];
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Test Score activity',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Text(
+                'Test Score activity',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              CircleAvatar(
+                backgroundColor: Color(0xFFF1ECFC),
+                radius: 16,
+                child: Icon(Icons.settings, color: Color(0xFF7A50C4), size: 16),
+              ),
+            ],
           ),
-          SizedBox(height: 16),
-          Placeholder(fallbackHeight: 100),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 180,
+            child: LineChart(
+              LineChartData(
+                minX: 0,
+                maxX: testScores.length - 1,
+                minY: 0,
+                maxY: 100,
+                backgroundColor: Colors.transparent,
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (_) => FlLine(
+                    color: Colors.grey.withOpacity(0.1),
+                    strokeWidth: 1,
+                  ),
+                ),
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      getTitlesWidget: (value, _) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            dateLabels[value.toInt()],
+                            style: const TextStyle(fontSize: 12, color: Colors.black45),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: testScores,
+                    isCurved: true,
+                    color: const Color(0xFFFFCD4D),
+                    barWidth: 3,
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: const Color(0xFFFFCD4D).withOpacity(0.2),
+                    ),
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, _, __, ___) => FlDotCirclePainter(
+                        radius: 4,
+                        color: const Color(0xFFFFCD4D),
+                        strokeWidth: 2,
+                        strokeColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+                lineTouchData: LineTouchData(
+                  handleBuiltInTouches: true,
+                  
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (touchedSpot) => Colors.white,
+                   
+                    getTooltipItems: (spots) => spots.map((spot) {
+                      return LineTooltipItem(
+                        '${spot.y.toInt()}%',
+                        const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
+
+
   Widget _buildResources() {
     final items = [
-      {'title': 'Books', 'icon': Icons.menu_book, 'color': Colors.pink.shade50},
+      {'title': 'Books', 'icon':'assets/images/books.png', 'color': Colors.pink.shade50},
       {
         'title': 'Videos',
-        'icon': Icons.play_circle_fill,
+        'icon': 'assets/images/videos.png',
         'color': Colors.green.shade50,
       },
       {
         'title': 'Papers',
-        'icon': Icons.description,
+        'icon': 'assets/images/papers.png',
         'color': Colors.purple.shade50,
       },
     ];
@@ -331,7 +468,8 @@ class StudentDashboard extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        Icon(item['icon'] as IconData, size: 36),
+                        Image.asset(item['icon'] as String, height: 60),
+
                         const SizedBox(height: 8),
                         Text(
                           item['title'] as String,
