@@ -49,7 +49,7 @@ class StudentDrawer extends StatelessWidget {
           _buildDrawerItem(context, Icons.currency_rupee, 'Fees', '/fees'),
           _buildDrawerItem(context, Icons.calendar_today, 'Calendar', '/calendar'),
           _buildDrawerItem(context, Icons.schedule, 'Time Table', '/timetable'),
-          _buildDrawerItem(context, Icons.message_outlined, 'Message', '/messages'),
+          _buildDrawerItem(context, Icons.message_outlined, 'Message', '/chats'),
           _buildDrawerItem(context, Icons.settings_outlined, 'Settings', '/settings'),
           const Spacer(),
           Center(
@@ -57,7 +57,7 @@ class StudentDrawer extends StatelessWidget {
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
                 Navigator.pop(context);
-                Navigator.pushReplacementNamed(context, '/login');
+                Navigator.pushReplacementNamed(context, '/role_selection');
               },
               child: const Text('Log out', style: TextStyle(color: Colors.grey)),
             ),

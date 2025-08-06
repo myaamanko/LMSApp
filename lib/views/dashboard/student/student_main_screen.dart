@@ -1,40 +1,72 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:lsm/views/chats/chat_screen.dart';
-import 'student_dashboard.dart';
-
+import 'package:lsm/views/dashboard/student/student_dashboard.dart';
+import 'package:lsm/views/dashboard/student/timetable_screen.dart';
 
 class StudentMainScreen extends StatefulWidget {
-  const StudentMainScreen({super.key});
-
   @override
-  State<StudentMainScreen> createState() => _StudentMainScreenState();
+  _StudentMainScreenState createState() => _StudentMainScreenState();
 }
 
 class _StudentMainScreenState extends State<StudentMainScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
-    const StudentDashboard(),
-    Center(child: Text("Calendar")),
-    const ChatScreen(),
-    Center(child: Text("Profile")),
+  final List<String> _titles = [
+    'Dashboard',
+    'Time Table',
+    'Chat',
+    'Profile',
   ];
+
+  final List<Widget> _screens = [
+    StudentDashboard(),
+    TimeTableScreen(),
+    Center(child: Text('Chat')), // Placeholder
+    Center(child: Text('Profile')), // Placeholder
+  ];
+
+  void _onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_currentIndex],
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Row(
+          children: [
+            const Icon(Icons.menu, color: Colors.black),
+            const SizedBox(width: 10),
+            Text(
+              _titles[_currentIndex],
+              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: CircleAvatar(backgroundImage: AssetImage('assets/avatar.png')),
+          ),
+        ],
+      ),
+      body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: _onTabTapped,
         selectedItemColor: Colors.indigo,
         unselectedItemColor: Colors.grey,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: ''),
         ],
       ),
     );

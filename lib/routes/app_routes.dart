@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:lsm/views/chats/chat_screen.dart';
 import 'package:lsm/views/dashboard/educator_dashboard.dart';
-import 'package:lsm/views/dashboard/student/student_dashboard.dart';
-import 'package:lsm/views/auth/sign_in_screen.dart';
-import 'package:lsm/views/auth/sign_up_screen.dart';
+import 'package:lsm/views/auth/sign_in_screen.dart'; // ✅ Fixed filename
 import 'package:lsm/views/auth/role_selection_screen.dart';
+import 'package:lsm/views/auth/sign_up_screen.dart';
+import 'package:lsm/views/dashboard/student/student_dashboard.dart';
 import 'package:lsm/views/onboarding/onboarding_screen.dart';
 import 'package:lsm/views/splash/splash_screen.dart';
 
-// Drawer-related screens
-// import 'package:lsm/views/student/teachers_screen.dart';
-// import 'package:lsm/views/student/students_screen.dart';
-// import 'package:lsm/views/student/fees_screen.dart';
-// import 'package:lsm/views/student/calendar_screen.dart';
-// import 'package:lsm/views/student/timetable_screen.dart';
-// import 'package:lsm/views/student/messages_screen.dart';
-// import 'package:lsm/views/student/settings_screen.dart';
+
+
+import '../views/auth/sign_in_screen.dart';
 
 class AppRoutes {
   // ✅ Route names
@@ -29,12 +24,8 @@ class AppRoutes {
   static const String lecturerDashboard = '/lecturer_dashboard';
 
   static const String chats = '/chats';
-  static const String teachers = '/teachers';
-  static const String students = '/students';
-  static const String fees = '/fees';
-  static const String calendar = '/calendar';
-  static const String timetable = '/timetable';
-  static const String messages = '/messages';
+  static const String classes = '/classes';
+  static const String assignments = '/assignments';
   static const String settings = '/settings';
 
   // ✅ Route mappings
@@ -49,12 +40,8 @@ class AppRoutes {
     lecturerDashboard: (context) => const EducatorDashboard(),
 
     chats: (context) => const ChatScreen(),
-    // teachers: (context) => const TeachersScreen(),
-    // students: (context) => const StudentsScreen(),
-    // fees: (context) => const FeesScreen(),
-    // calendar: (context) => const CalendarScreen(),
-    // timetable: (context) => const TimeTableScreen(),
-    // messages: (context) => const MessagesScreen(),
-    // settings: (context) => const SettingsScreen(),
+    // classes: (context) => const ClassesScreen(), // ✅ New
+    // assignments: (context) => const AssignmentsScreen(), // ✅ New
+    // settings: (context) => const SettingsScreen(), // ✅ New
   };
 }
