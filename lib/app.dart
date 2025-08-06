@@ -12,7 +12,7 @@ class LSMApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+        ChangeNotifierProvider<AuthManager>(create: (_) => AuthManager()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         // Add more providers as you create them
       ],

@@ -1,4 +1,3 @@
-// 📄 File: role_selection_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -8,10 +7,18 @@ class RoleSelectionScreen extends StatelessWidget {
   const RoleSelectionScreen({super.key});
 
   void _selectRole(BuildContext context, String role) {
-    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final auth = Provider.of<AuthManager>(context, listen: false);
     auth.setRole(role);
 
-    Navigator.pushReplacementNamed(context, AppRoutes.login);
+    final roleDisplay = role == 'lecturer' ? 'Educator' : 'Student';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('You selected: $roleDisplay')),
+    );
+
+    Future.delayed(const Duration(milliseconds: 800), () {
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
+    });
   }
 
   @override
@@ -29,19 +36,12 @@ class RoleSelectionScreen extends StatelessWidget {
               SizedBox(height: isSmallScreen ? 20 : 40),
               SizedBox(
                 height: isSmallScreen ? size.height * 0.25 : size.height * 0.35,
-                child: Image.asset(
-                  'assets/images/onboard_5.png',
-                  fit: BoxFit.contain,
-                ),
+                child: Image.asset('assets/images/onboard_5.png', fit: BoxFit.contain),
               ),
               SizedBox(height: isSmallScreen ? 20 : 40),
               const Text(
                 'You are a . . .',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
               Column(
@@ -55,9 +55,7 @@ class RoleSelectionScreen extends StatelessWidget {
                         foregroundColor: Colors.black,
                         backgroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       onPressed: () => _selectRole(context, 'student'),
                     ),
@@ -72,9 +70,7 @@ class RoleSelectionScreen extends StatelessWidget {
                         foregroundColor: Colors.black,
                         backgroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       onPressed: () => _selectRole(context, 'lecturer'),
                     ),

@@ -2,33 +2,61 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_services.dart';
 
-class AuthProvider extends ChangeNotifier {
+class AuthManager extends ChangeNotifier {
   final AuthService _authService = AuthService();
-  final bool _isLoading = false;
+
+  bool _isLoading = false;
   bool get isLoading => _isLoading;
+
   User? user;
   String? role;
 
   Future<void> register(String name, String email, String password, String role) async {
-    user = await _authService.register(
-      name: name,
-      email: email,
-      password: password,
-      role: role,
-    );
+    _setLoading(true);
 
-    this.role = role;
+    try {
+      user = await _authService.register(
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+      );
+      this.role = role;
+    } catch (e) {
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+
     notifyListeners();
   }
 
   Future<void> login(String email, String password) async {
-    user = await _authService.login(email, password);
+    _setLoading(true);
 
-    if (user != null) {
-      role = await _authService.getUserRole(user!.uid);
+    try {
+      User? signedInUser = await _authService.login(email, password);
+
+      if (signedInUser != null) {
+        final fetchedRole = await _authService.getUserRole(signedInUser.uid);
+
+        if (fetchedRole != role) {
+          await _authService.logout();
+          throw FirebaseAuthException(
+            code: 'role-mismatch',
+            message: 'This account is not registered as a $role.',
+          );
+        }
+
+        user = signedInUser;
+        this.role = fetchedRole;
+      }
+    } catch (e) {
+      rethrow;
+    } finally {
+      _setLoading(false);
+      notifyListeners();
     }
-
-    notifyListeners();
   }
 
   Future<void> logout() async {
@@ -41,5 +69,19 @@ class AuthProvider extends ChangeNotifier {
   void setRole(String newRole) {
     role = newRole;
     notifyListeners();
+  }
+
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
+  // ✅ NEW: Save user profile image after signup
+  Future<void> saveUserProfileImage(String uid, String? imageUrl) async {
+    try {
+      await _authService.saveUserProfileImage(uid, imageUrl);
+    } catch (e) {
+      rethrow;
+    }
   }
 }

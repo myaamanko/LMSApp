@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class StudentDashboard extends StatelessWidget {
@@ -5,65 +7,96 @@ class StudentDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 🔐 Get the current logged-in user (from student login)
+    final currentUser = FirebaseAuth.instance.currentUser;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F6FA),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black),
-          onPressed: () {},
-        ),
-        title: const Text('Dashboard', style: TextStyle(color: Colors.black)),
-        centerTitle: false,
-        actions: [
-          CircleAvatar(
-            backgroundColor: Colors.grey.shade300,
-            child: const Icon(Icons.person, color: Colors.black),
+    // 🔒 Check if the user is logged in
+    if (currentUser == null) {
+      return const Scaffold(
+        body: Center(child: Text('Not logged in')),
+      );
+    }
+
+    // 🔄 Create a real-time stream from the student's Firestore document
+    final userDocStream = FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid) // 👉 uses the current student UID
+        .snapshots(); // 👈 keeps listening for changes
+
+    return StreamBuilder<DocumentSnapshot>(
+      stream: userDocStream, // 👈 listening to this student's document
+      builder: (context, snapshot) {
+        // 🛡️ If data is not ready yet or missing, use empty map
+        final data = snapshot.data?.data() as Map<String, dynamic>? ?? {};
+
+        // ✅ Extract student-specific fields with default values
+        final name = data['name'] ?? 'Student';
+        final attendance = data['attendance'] ?? 0;
+        final taskCompleted = data['taskCompleted'] ?? 0;
+        final taskInProgress = data['taskInProgress'] ?? 0;
+        final rewardPoints = data['rewardPoints'] ?? 0;
+
+        // 🧱 Full dashboard UI still builds even if data is missing
+        return Scaffold(
+          backgroundColor: const Color(0xFFF6F6FA),
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.menu, color: Colors.black),
+              onPressed: () {},
+            ),
+            title: const Text('Dashboard', style: TextStyle(color: Colors.black)),
+            actions: [
+              CircleAvatar(
+                backgroundColor: Colors.grey.shade300,
+                child: const Icon(Icons.person, color: Colors.black),
+              ),
+              const SizedBox(width: 16),
+            ],
           ),
-          const SizedBox(width: 16),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSearchBar(),
-            const SizedBox(height: 20),
-            _buildWelcomeCard(),
-            const SizedBox(height: 20),
-            _buildStatGrid(),
-            const SizedBox(height: 24),
-            _buildNoticeBoard(),
-            const SizedBox(height: 24),
-            _buildTestScoreActivity(),
-            const SizedBox(height: 24),
-            _buildResources(),
-            const SizedBox(height: 80),
-          ],
-        ),
-      ),
 
-      // ✅ Bottom Navigation Bar is managed in StudentMainScreen
-      // Below is for reference only and must be handled by parent
-      bottomNavigationBar: BottomNavigationBar(
-  type: BottomNavigationBarType.fixed,
-  currentIndex: 0, // 👈 will be managed from parent
-  selectedItemColor: Colors.indigo,
-  unselectedItemColor: Colors.grey,
-  items: const [
-    BottomNavigationBarItem(icon: Icon(Icons.home), label: ''), // index 0: Dashboard
-    BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: ''), // index 1: Calendar (future)
-    BottomNavigationBarItem(icon: Icon(Icons.chat), label: ''), // index 2: ChatScreen 👈
-    BottomNavigationBarItem(icon: Icon(Icons.person), label: ''), // index 3: Profile (future)
-  ],
-),
+          // 📦 Main scrollable content
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSearchBar(),
+                const SizedBox(height: 20),
+                _buildWelcomeCard(name), // 👋 Pass student's name
+                const SizedBox(height: 20),
+                _buildStatGrid(attendance, taskCompleted, taskInProgress, rewardPoints),
+                const SizedBox(height: 24),
+                _buildNoticeBoard(),
+                const SizedBox(height: 24),
+                _buildTestScoreActivity(),
+                const SizedBox(height: 24),
+                _buildResources(),
+                const SizedBox(height: 80),
+              ],
+            ),
+          ),
 
+          // 📱 Bottom navigation
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: 0,
+            selectedItemColor: Colors.indigo,
+            unselectedItemColor: Colors.grey,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
+              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: ''),
+              BottomNavigationBarItem(icon: Icon(Icons.chat), label: ''),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
+            ],
+          ),
+        );
+      },
     );
   }
 
+  // 🔍 UI for search bar
   Widget _buildSearchBar() {
     return Row(
       children: [
@@ -74,10 +107,10 @@ class StudentDashboard extends StatelessWidget {
               prefixIcon: const Icon(Icons.search),
               fillColor: Colors.white,
               filled: true,
-              contentPadding: const EdgeInsets.symmetric(vertical: 0),
               border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none),
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
             ),
           ),
         ),
@@ -87,7 +120,8 @@ class StudentDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildWelcomeCard() {
+  // 🙋 Welcome message using student name
+  Widget _buildWelcomeCard(String name) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -96,34 +130,35 @@ class StudentDashboard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Hey Ashwin.',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                SizedBox(height: 6),
-                Text(
+                Text('Hey $name.',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                const Text(
                     "Welcome back! Let's dive into your classes and keep moving toward your goals.",
                     style: TextStyle(color: Colors.black54)),
               ],
             ),
           ),
-          Image.asset('assets/images/welcome_illustration.png',
-              height: 60) // placeholder
+          Image.asset('assets/images/welcome_illustration.png', height: 60),
         ],
       ),
     );
   }
 
-  Widget _buildStatGrid() {
+  // 📊 Student stats grid (attendance, tasks, rewards)
+  Widget _buildStatGrid(int attendance, int taskCompleted, int taskInProgress, int rewardPoints) {
     final stats = [
-      {'title': '80%', 'label': 'Attendance'},
-      {'title': '258+', 'label': 'Task Completed'},
-      {'title': '64%', 'label': 'Task in Progress'},
-      {'title': '245', 'label': 'Reward Points'},
+      {'title': '$attendance%', 'label': 'Attendance'},
+      {'title': '$taskCompleted+', 'label': 'Task Completed'},
+      {'title': '$taskInProgress%', 'label': 'Task in Progress'},
+      {'title': '$rewardPoints', 'label': 'Reward Points'},
     ];
+
     return GridView.builder(
       shrinkWrap: true,
       itemCount: stats.length,
@@ -158,15 +193,15 @@ class StudentDashboard extends StatelessWidget {
     );
   }
 
+  // 🗞️ Notices
   Widget _buildNoticeBoard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text('Notice Board',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          children: [
+            Text('Notice Board', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             Text('view all', style: TextStyle(color: Colors.indigo)),
           ],
         ),
@@ -175,25 +210,20 @@ class StudentDashboard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
               color: Colors.white, borderRadius: BorderRadius.circular(12)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+          child: const Column(
+            children: [
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: CircleAvatar(
-                    backgroundImage:
-                        AssetImage('assets/images/notice1.png')),
-                title: Text(
-                    "The school's Annual Sports Day will be held on May 12, 2024."),
+                    backgroundImage: AssetImage('assets/images/notice1.png')),
+                title: Text("The school's Annual Sports Day will be held on May 12, 2024."),
                 subtitle: Text('1h ago · by Principal'),
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: CircleAvatar(
-                    backgroundImage:
-                        AssetImage('assets/images/notice2.png')),
-                title:
-                    Text("Summer Holiday begins on May-25, 2024."),
+                    backgroundImage: AssetImage('assets/images/notice2.png')),
+                title: Text("Summer Holiday begins on May-25, 2024."),
                 subtitle: Text('3h ago · by Principal'),
               )
             ],
@@ -203,6 +233,7 @@ class StudentDashboard extends StatelessWidget {
     );
   }
 
+  // 📈 Placeholder for future chart integration
   Widget _buildTestScoreActivity() {
     return Container(
       width: double.infinity,
@@ -217,12 +248,13 @@ class StudentDashboard extends StatelessWidget {
           Text('Test Score activity',
               style: TextStyle(fontWeight: FontWeight.bold)),
           SizedBox(height: 16),
-          Placeholder(fallbackHeight: 100) // replace with chart later
+          Placeholder(fallbackHeight: 100)
         ],
       ),
     );
   }
 
+  // 📚 Resources tiles
   Widget _buildResources() {
     final items = [
       {
@@ -245,11 +277,10 @@ class StudentDashboard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text('Resources',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          children: [
+            Text('Resources', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             Text('view all', style: TextStyle(color: Colors.indigo)),
           ],
         ),
