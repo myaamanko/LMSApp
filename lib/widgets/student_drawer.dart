@@ -34,7 +34,7 @@ class StudentDrawer extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.chevron_left),
                   onPressed: () => Navigator.of(context).pop(),
-                )
+                ),
               ],
             ),
           ),
@@ -43,14 +43,44 @@ class StudentDrawer extends StatelessWidget {
             child: Text('Menu', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 10),
-          _buildDrawerItem(context, Icons.dashboard, 'Dashboard', '/student-dashboard'),
-          _buildDrawerItem(context, Icons.person_outline, 'Teachers', '/teachers'),
-          _buildDrawerItem(context, Icons.group_outlined, 'Students', '/students'),
-          _buildDrawerItem(context, Icons.currency_rupee, 'Fees', '/fees'),
-          _buildDrawerItem(context, Icons.calendar_today, 'Calendar', '/calendar'),
+          _buildDrawerItem(
+            context,
+            Icons.dashboard,
+            'Dashboard',
+            '/student_dashboard',
+          ),
+          _buildDrawerItem(
+            context,
+            Icons.person_outline,
+            'Teachers',
+            '/teachers',
+          ),
+          _buildDrawerItem(
+            context,
+            Icons.group_outlined,
+            'Students',
+            '/students',
+          ),
+          _buildDrawerItem(context, Icons.money, 'Fees', '/fees'),
+          _buildDrawerItem(
+            context,
+            Icons.calendar_today,
+            'Calendar',
+            '/calendar',
+          ),
           _buildDrawerItem(context, Icons.schedule, 'Time Table', '/timetable'),
-          _buildDrawerItem(context, Icons.message_outlined, 'Message', '/chats'),
-          _buildDrawerItem(context, Icons.settings_outlined, 'Settings', '/settings'),
+          _buildDrawerItem(
+            context,
+            Icons.message_outlined,
+            'Message',
+            '/chats',
+          ),
+          _buildDrawerItem(
+            context,
+            Icons.settings_outlined,
+            'Settings',
+            '/settings',
+          ),
           const Spacer(),
           Center(
             child: TextButton(
@@ -59,7 +89,10 @@ class StudentDrawer extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.pushReplacementNamed(context, '/role_selection');
               },
-              child: const Text('Log out', style: TextStyle(color: Colors.grey)),
+              child: const Text(
+                'Log out',
+                style: TextStyle(color: Colors.grey),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -68,7 +101,12 @@ class StudentDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawerItem(BuildContext context, IconData icon, String label, String route) {
+  Widget _buildDrawerItem(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String route,
+  ) {
     return ListTile(
       leading: Icon(icon),
       title: Text(label),

@@ -1,45 +1,62 @@
-import 'package:flutter/foundation.dart';
-import '../models/message.dart';
+import 'package:flutter/material.dart';
+import '../models/chat_message.dart';
 
 class ChatProvider with ChangeNotifier {
-  final List<Message> _messages = [
-    Message(text: "Hi, Mandy", timestamp: DateTime.now(), sender: Sender.user),
-    Message(text: "I’ve tried the app", timestamp: DateTime.now(), sender: Sender.user),
-    Message(text: "Really?", timestamp: DateTime.now(), sender: Sender.other),
-    Message(text: "Yeah, It’s really good!", timestamp: DateTime.now(), sender: Sender.user),
+  final List<ChatMessage> _messages = [
+    ChatMessage(
+      sender: "Me",
+      message: "Hi, Mandy",
+      timestamp: DateTime.now(),
+      isSender: true,
+    ),
+    ChatMessage(
+      sender: "Me",
+      message: "I’ve tried the app",
+      timestamp: DateTime.now(),
+      isSender: true,
+    ),
+    ChatMessage(
+      sender: "Maddy",
+      message: "Really?",
+      timestamp: DateTime.now(),
+      isSender: false,
+    ),
+    ChatMessage(
+      sender: "Me",
+      message: "Yeah, It’s really good!",
+      timestamp: DateTime.now(),
+      isSender: true,
+    ),
   ];
-
-  List<Message> get messages => _messages;
 
   bool _isTyping = true;
 
+  List<ChatMessage> get messages => _messages;
   bool get isTyping => _isTyping;
 
-  void sendMessage(String text) {
-    _messages.add(
-      Message(
-        text: text,
-        timestamp: DateTime.now(),
-        sender: Sender.user,
-      ),
-    );
+  void sendMessage(String message) {
+    _messages.add(ChatMessage(
+      sender: "Me",
+      message: message,
+      timestamp: DateTime.now(),
+      isSender: true,
+    ));
     _isTyping = false;
     notifyListeners();
-  }
 
-  void receiveMessage(String text) {
-    _messages.add(
-      Message(
-        text: text,
+    Future.delayed(const Duration(seconds: 2), () {
+      _messages.add(ChatMessage(
+        sender: "Maddy",
+        message: "Nice! 😊",
         timestamp: DateTime.now(),
-        sender: Sender.other,
-      ),
-    );
-    notifyListeners();
+        isSender: false,
+      ));
+      notifyListeners();
+    });
   }
 
-  void setTyping(bool typing) {
-    _isTyping = typing;
+  void setTyping(bool value) {
+    _isTyping = value;
     notifyListeners();
   }
 }

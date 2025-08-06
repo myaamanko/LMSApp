@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:lsm/providers/fee_provider.dart';
+import 'package:lsm/providers/student_provider.dart';
+import 'package:lsm/providers/teacher_provider.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'providers/chat_provider.dart';
@@ -15,6 +18,9 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthManager()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
+        ChangeNotifierProvider(create: (_) => TeacherProvider()),
+        ChangeNotifierProvider(create: (_) => StudentProvider()),
+        ChangeNotifierProvider(create: (_) => FeeProvider()),
       ],
       child: const LSMApp(),
     ),

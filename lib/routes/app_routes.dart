@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lsm/views/chats/chat_screen.dart';
+import 'package:lsm/fees/fees_screen.dart';
+import 'package:lsm/views/chats/chats_details.dart';
 import 'package:lsm/views/dashboard/educator_dashboard.dart';
 import 'package:lsm/views/auth/sign_in_screen.dart'; // ✅ Fixed filename
 import 'package:lsm/views/auth/role_selection_screen.dart';
@@ -10,7 +11,11 @@ import 'package:lsm/views/splash/splash_screen.dart';
 
 
 
+import '../student/students_screen.dart';
+import '../teachers/teachers_screen.dart';
 import '../views/auth/sign_in_screen.dart';
+import '../views/chats/chat_list_screen.dart';
+import '../views/dashboard/student/timetable_screen.dart';
 
 class AppRoutes {
   // ✅ Route names
@@ -22,11 +27,14 @@ class AppRoutes {
 
   static const String studentDashboard = '/student_dashboard';
   static const String lecturerDashboard = '/lecturer_dashboard';
-
+static const String timetable='/timetable';
   static const String chats = '/chats';
   static const String classes = '/classes';
   static const String assignments = '/assignments';
   static const String settings = '/settings';
+  static const String fees = '/fees';
+  static const String teachers = '/teachers';
+  static const String students = '/students';
 
   // ✅ Route mappings
   static final Map<String, WidgetBuilder> routes = {
@@ -35,11 +43,13 @@ class AppRoutes {
     login: (context) => const SignInScreen(),
     signup: (context) => const SignUpScreen(),
     roleSelection: (context) => const RoleSelectionScreen(),
-
+  timetable: (context) => const TimeTableScreen(),
     studentDashboard: (context) => const StudentDashboard(),
     lecturerDashboard: (context) => const EducatorDashboard(),
-
-    chats: (context) => const ChatScreen(),
+    fees: (context) => const FeeScreen(),
+    chats: (context) => const ChatListScreen(),
+    teachers: (context) => const TeachersScreen(),
+    students: (context) => const StudentsScreen(),
     // classes: (context) => const ClassesScreen(), // ✅ New
     // assignments: (context) => const AssignmentsScreen(), // ✅ New
     // settings: (context) => const SettingsScreen(), // ✅ New
