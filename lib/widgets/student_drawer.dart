@@ -1,4 +1,3 @@
-// ✅ student_drawer.dart
 import 'package:flutter/material.dart';
 
 class StudentDrawer extends StatelessWidget {
@@ -7,91 +6,86 @@ class StudentDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header with logo and title
           DrawerHeader(
-            decoration: BoxDecoration(color: Colors.indigo.shade400),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: AssetImage('assets/images/profile.jpg'),
+            margin: EdgeInsets.zero,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.school, color: Colors.white),
                 ),
-                SizedBox(height: 10),
-                Text(
-                  'Ashwin Daniel',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
+                const SizedBox(width: 12),
+                const Text(
+                  'LMSApp',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  'Student',
-                  style: TextStyle(color: Colors.white70),
-                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.chevron_left),
+                  onPressed: () => Navigator.of(context).pop(),
+                )
               ],
             ),
           ),
-          _buildDrawerItem(
-            context,
-            icon: Icons.dashboard,
-            label: 'Dashboard',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/student_dashboard');
-            },
+
+          // Menu title
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text('Menu', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
-          _buildDrawerItem(
-            context,
-            icon: Icons.class_,
-            label: 'My Classes',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/classes');
-            },
+          const SizedBox(height: 10),
+
+          // Menu items
+          _buildDrawerItem(context, Icons.dashboard, 'Dashboard', '/student-dashboard'),
+          _buildDrawerItem(context, Icons.person_outline, 'Teachers', '/teachers'),
+          _buildDrawerItem(context, Icons.group_outlined, 'Students', '/students'),
+          _buildDrawerItem(context, Icons.currency_rupee, 'Fees', '/fees'),
+          _buildDrawerItem(context, Icons.calendar_today, 'Calendar', '/calendar'),
+          _buildDrawerItem(context, Icons.schedule, 'Time Table', '/timetable'),
+          _buildDrawerItem(context, Icons.message_outlined, 'Message', '/messages'),
+          _buildDrawerItem(context, Icons.settings_outlined, 'Settings', '/settings'),
+
+          const Spacer(),
+
+          // Log out
+          Center(
+            child: TextButton(
+              onPressed: () {
+                // TODO: Implement logout logic
+                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+              child: const Text(
+                'Log out',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
           ),
-          _buildDrawerItem(
-            context,
-            icon: Icons.assignment,
-            label: 'Assignments',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/assignments');
-            },
-          ),
-          _buildDrawerItem(
-            context,
-            icon: Icons.settings,
-            label: 'Settings',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/settings');
-            },
-          ),
-          const Divider(),
-          _buildDrawerItem(
-            context,
-            icon: Icons.logout,
-            label: 'Logout',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-          ),
+
+          const SizedBox(height: 16),
         ],
       ),
     );
   }
 
-  Widget _buildDrawerItem(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
+  /// Helper method to build drawer list tiles
+  Widget _buildDrawerItem(BuildContext context, IconData icon, String label, String route) {
     return ListTile(
-      leading: Icon(icon, color: Colors.indigo),
+      leading: Icon(icon),
       title: Text(label),
-      onTap: onTap,
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => Navigator.pushNamed(context, route),
     );
   }
 }
