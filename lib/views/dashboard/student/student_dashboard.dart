@@ -1,26 +1,36 @@
 import 'package:flutter/material.dart';
 
+import '../../../widgets/student_drawer.dart';
+
 class StudentDashboard extends StatelessWidget {
   const StudentDashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Scaffold key to open the drawer programmatically
+    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-    return Scaffold(
+    return Scaffold(key: _scaffoldKey, // ✅ Attach the key to Scaffold
       backgroundColor: const Color(0xFFF6F6FA),
+      // ✅ Attach the StudentDrawer here
+      drawer: const StudentDrawer(),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Colors.black),
-          onPressed: () {},
+          onPressed: () {
+            // ✅ Open drawer using key
+            _scaffoldKey.currentState?.openDrawer();
+          },
         ),
         title: const Text('Dashboard', style: TextStyle(color: Colors.black)),
         centerTitle: false,
         actions: [
           CircleAvatar(
             backgroundColor: Colors.grey.shade300,
-            child: const Icon(Icons.person, color: Colors.black),
+            child:Image.asset('assets/images/Profile.png',),
+            // const Icon(Icons.person, color: Colors.black),
           ),
           const SizedBox(width: 16),
         ],
