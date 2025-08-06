@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lsm/providers/auth_provider.dart';
@@ -19,18 +21,32 @@ class _SignInScreenState extends State<SignInScreen>
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeIn,
+
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
+
+    _scaleAnimation = Tween<double>(begin: 0.9, end: 1).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+
     _animationController.forward();
   }
 
@@ -88,113 +104,122 @@ class _SignInScreenState extends State<SignInScreen>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // 🖼️ GAF background
-          Image.asset(
-            'assets/images/gaf_bg.jpg',
-            fit: BoxFit.cover,
-            color: Colors.black.withOpacity(0.3),
-            colorBlendMode: BlendMode.darken,
+          // Background image with blur
+          Image.asset('assets/images/bg.jpg', fit: BoxFit.cover),
+
+          // Blur effect
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+            child: Container(color: Colors.black.withOpacity(0.2)),
           ),
 
-          // 🔲 Glass container (login form)
+          // Login content
           auth.isLoading
               ? const Center(child: CircularProgressIndicator())
               : FadeTransition(
                 opacity: _fadeAnimation,
-                child: Center(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 24),
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.85),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            'GAF Login',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF00205B), // GAF Blue
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            'Enter your email and password to sign in.',
-                          ),
-                          const SizedBox(height: 30),
-                          _buildInput('Email', emailController, false),
-                          const SizedBox(height: 16),
-                          _buildInput('Password', passwordController, true),
-                          const SizedBox(height: 8),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              'Forgot Password?',
-                              style: TextStyle(color: Colors.grey.shade600),
-                            ),
-                          ),
-                          const SizedBox(height: 30),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(
-                                  0xFF00205B,
-                                ), // GAF Blue
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Center(
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Container(
+                            padding: const EdgeInsets.all(32),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              // ignore: deprecated_member_use
+                              color: Colors.white.withOpacity(0.15),
+                              border: Border.all(
+                                // ignore: deprecated_member_use
+                                color: Colors.white.withOpacity(0.2),
+                                width: 1,
                               ),
-                              onPressed: _handleLogin,
-                              child: const Text('SIGN IN'),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          _buildDivider('Or Sign in with'),
-                          const SizedBox(height: 16),
-                          _buildSocialButton(
-                            'Sign In with Facebook',
-                            'facebook.png',
-                            Colors.blue,
-                          ),
-                          const SizedBox(height: 12),
-                          _buildSocialButton(
-                            'Sign In with Google',
-                            'google.png',
-                            Colors.white,
-                          ),
-                          const SizedBox(height: 24),
-                          TextButton(
-                            onPressed:
-                                () => Navigator.pushReplacementNamed(
-                                  context,
-                                  AppRoutes.signup,
+                              boxShadow: [
+                                BoxShadow(
+                                  // ignore: deprecated_member_use
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 20,
+                                  spreadRadius: 2,
                                 ),
-                            child: const Text.rich(
-                              TextSpan(
-                                text: "Don't have an account? ",
-                                children: [
-                                  TextSpan(
-                                    text: "Sign up Here",
-                                    style: TextStyle(color: Colors.blue),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(
+                                  sigmaX: 10,
+                                  sigmaY: 10,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24.0),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        'GAF Login',
+                                        style: TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      const Text(
+                                        'Enter your credentials to continue',
+                                        style: TextStyle(color: Colors.white70),
+                                      ),
+                                      const SizedBox(height: 30),
+                                      _buildInput(
+                                        'Email',
+                                        emailController,
+                                        false,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      _buildInput(
+                                        'Password',
+                                        passwordController,
+                                        true,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                          'Forgot Password?',
+                                          style: TextStyle(
+                                            color: Colors.white.withOpacity(
+                                              0.8,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 30),
+                                      _buildSignInButton(),
+                                      const SizedBox(height: 24),
+                                      _buildDivider('Or Sign in with'),
+                                      const SizedBox(height: 16),
+                                      _buildSocialButton(
+                                        'Sign In with Facebook',
+                                        'facebook.png',
+                                        Colors.blue,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      _buildSocialButton(
+                                        'Sign In with Google',
+                                        'google.png',
+                                        Colors.white,
+                                      ),
+                                      const SizedBox(height: 24),
+                                      _buildSignUpButton(),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -213,20 +238,39 @@ class _SignInScreenState extends State<SignInScreen>
     return TextField(
       controller: controller,
       obscureText: isPassword && !showPassword,
+      style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         hintText: hint,
+        // ignore: deprecated_member_use
+        hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
         suffixIcon:
             isPassword
                 ? IconButton(
                   icon: Icon(
                     showPassword ? Icons.visibility_off : Icons.visibility,
+                    // ignore: deprecated_member_use
+                    color: Colors.white.withOpacity(0.7),
                   ),
                   onPressed: () => setState(() => showPassword = !showPassword),
                 )
                 : null,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          // ignore: deprecated_member_use
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          // ignore: deprecated_member_use
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+        ),
         filled: true,
-        fillColor: Colors.white,
+        // ignore: deprecated_member_use
+        fillColor: Colors.white.withOpacity(0.1),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
       ),
     );
   }
@@ -234,12 +278,22 @@ class _SignInScreenState extends State<SignInScreen>
   Widget _buildDivider(String text) {
     return Row(
       children: [
-        const Expanded(child: Divider()),
+        Expanded(
+          // ignore: deprecated_member_use
+          child: Divider(color: Colors.white.withOpacity(0.3), thickness: 1),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Text(text),
+          child: Text(
+            text,
+            // ignore: deprecated_member_use
+            style: TextStyle(color: Colors.white.withOpacity(0.7)),
+          ),
         ),
-        const Expanded(child: Divider()),
+        Expanded(
+          // ignore: deprecated_member_use
+          child: Divider(color: Colors.white.withOpacity(0.3), thickness: 1),
+        ),
       ],
     );
   }
@@ -250,13 +304,68 @@ class _SignInScreenState extends State<SignInScreen>
       height: 48,
       child: OutlinedButton.icon(
         icon: Image.asset('assets/images/$iconAsset', height: 20),
-        label: Text(text, style: const TextStyle(color: Colors.black)),
+        label: Text(
+          text,
+          style: TextStyle(
+            color: color == Colors.white ? Colors.black : Colors.white,
+          ),
+        ),
         onPressed: () {},
         style: OutlinedButton.styleFrom(
-          backgroundColor: color,
+          backgroundColor: color.withOpacity(color == Colors.white ? 0.9 : 0.7),
           side: BorderSide(
-            color: color == Colors.white ? Colors.grey.shade300 : color,
+            color:
+                color == Colors.white
+                    ? Colors.grey.shade300
+                    : color.withOpacity(0.5),
           ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSignInButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white.withOpacity(0.9),
+          foregroundColor: const Color(0xFF00205B),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 2,
+        ),
+        onPressed: _handleLogin,
+        child: const Text(
+          'SIGN IN',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSignUpButton() {
+    return TextButton(
+      onPressed:
+          () => Navigator.pushReplacementNamed(context, AppRoutes.signup),
+      child: const Text.rich(
+        TextSpan(
+          text: "Don't have an account? ",
+          style: TextStyle(color: Colors.white70),
+          children: [
+            TextSpan(
+              text: "Sign up Here",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );
