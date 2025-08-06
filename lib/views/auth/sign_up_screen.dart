@@ -1,6 +1,11 @@
+import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:lsm/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
 import '../../routes/app_routes.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -17,9 +22,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final confirmPasswordController = TextEditingController();
   bool showPassword = false;
   bool showConfirmPassword = false;
+  File? profileImage; // 👤 Selected profile image
+
+  final picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() {
+        profileImage = File(picked.path);
+      });
+    }
+  }
+
+  Future<String?> _uploadProfileImage(String uid) async {
+    if (profileImage == null) return null;
+
+    final storageRef = FirebaseStorage.instance.ref().child('profile_images/$uid.jpg');
+    await storageRef.putFile(profileImage!);
+    return await storageRef.getDownloadURL();
+  }
 
   void _handleRegister() async {
-    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final auth = Provider.of<AuthManager>(context, listen: false);
 
     if (passwordController.text != confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -36,21 +61,42 @@ class _SignUpScreenState extends State<SignUpScreen> {
         auth.role ?? 'student',
       );
 
+      // 📤 Upload profile image and update Firestore
+      if (auth.user != null) {
+        final uid = auth.user!.uid;
+        final imageUrl = await _uploadProfileImage(uid);
+
+        await auth.saveUserProfileImage(uid, imageUrl); // 🔧 Must exist in your AuthService
+      }
+
       if (auth.role == 'lecturer') {
         Navigator.pushReplacementNamed(context, AppRoutes.lecturerDashboard);
       } else {
         Navigator.pushReplacementNamed(context, AppRoutes.studentDashboard);
       }
+    } on FirebaseAuthException catch (e) {
+      String message = 'Sign up failed';
+      if (e.code == 'email-already-in-use') {
+        message = 'This email is already in use.';
+      } else if (e.code == 'role-mismatch') {
+        message = e.message!;
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sign up failed: ${e.toString()}')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Something went wrong: ${e.toString()}')),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context);
+    final auth = Provider.of<AuthManager>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -61,57 +107,79 @@ class _SignUpScreenState extends State<SignUpScreen> {
       body: auth.isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Sign Up', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 6),
-            const Text('Create an account to begin your Learning Journey'),
-            const SizedBox(height: 30),
-            _buildInput('Your Name Here', nameController),
-            const SizedBox(height: 16),
-            _buildInput('Your Email Here', emailController),
-            const SizedBox(height: 16),
-            _buildPassword('Password', passwordController, true),
-            const SizedBox(height: 16),
-            _buildPassword('Confirm Password', confirmPasswordController, false),
-            const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                onPressed: _handleRegister,
-                child: const Text('SIGN UP', style: TextStyle(fontSize: 16)),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('GAF Training Portal',
+                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Create your cadet account to get started',
+                    style: TextStyle(color: Colors.black54),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // 👤 Profile Image Picker
+                  Center(
+                    child: GestureDetector(
+                      onTap: _pickImage,
+                      child: CircleAvatar(
+                        radius: 45,
+                        backgroundImage:
+                            profileImage != null ? FileImage(profileImage!) : null,
+                        child: profileImage == null
+                            ? const Icon(Icons.add_a_photo, size: 30, color: Colors.white)
+                            : null,
+                        backgroundColor: Colors.grey.shade400,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  _buildInput('Your Name', nameController),
+                  const SizedBox(height: 16),
+                  _buildInput('Your Email', emailController),
+                  const SizedBox(height: 16),
+                  _buildPassword('Password', passwordController, true),
+                  const SizedBox(height: 16),
+                  _buildPassword('Confirm Password', confirmPasswordController, false),
+                  const SizedBox(height: 30),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF00205B), // GAF blue
+                      ),
+                      onPressed: _handleRegister,
+                      child: const Text('SIGN UP', style: TextStyle(fontSize: 16)),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  _buildDivider('Or Sign up with'),
+                  const SizedBox(height: 16),
+                  _buildSocialButton('Sign Up with Facebook', 'facebook.png', Colors.blue),
+                  const SizedBox(height: 12),
+                  _buildSocialButton('Sign Up with Google', 'google.png', Colors.white),
+                  const SizedBox(height: 30),
+                  Center(
+                    child: TextButton(
+                      onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.login),
+                      child: const Text.rich(
+                        TextSpan(
+                          text: "Already have an account? ",
+                          children: [
+                            TextSpan(text: "Sign in Here", style: TextStyle(color: Colors.blue)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
-            const SizedBox(height: 30),
-            _buildDivider('Or Sign up with'),
-            const SizedBox(height: 16),
-            _buildSocialButton('Sign Up with Facebook', 'facebook.png', Colors.blue),
-            const SizedBox(height: 12),
-            _buildSocialButton('Sign Up with Google', 'google.png', Colors.white),
-            const SizedBox(height: 30),
-            Center(
-              child: TextButton(
-                onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.login),
-                child: const Text.rich(
-                  TextSpan(
-                    text: "Already have an account? ",
-                    children: [
-                      TextSpan(
-                        text: "Sign in Here",
-                        style: TextStyle(color: Colors.blue),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
     );
   }
 

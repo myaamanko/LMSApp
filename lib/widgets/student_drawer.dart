@@ -1,5 +1,4 @@
-// lib/widgets/student_drawer.dart
-
+// ✅ student_drawer.dart
 import 'package:flutter/material.dart';
 
 class StudentDrawer extends StatelessWidget {
@@ -11,7 +10,6 @@ class StudentDrawer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ✅ Drawer header with user info
           DrawerHeader(
             decoration: BoxDecoration(color: Colors.indigo.shade400),
             child: Column(
@@ -33,15 +31,13 @@ class StudentDrawer extends StatelessWidget {
               ],
             ),
           ),
-
-          // ✅ Drawer Items with navigation
           _buildDrawerItem(
             context,
             icon: Icons.dashboard,
             label: 'Dashboard',
             onTap: () {
-              Navigator.pop(context); // Close drawer
-              Navigator.pushReplacementNamed(context, '/dashboard');
+              Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, '/student_dashboard');
             },
           ),
           _buildDrawerItem(
@@ -78,7 +74,6 @@ class StudentDrawer extends StatelessWidget {
             label: 'Logout',
             onTap: () {
               Navigator.pop(context);
-              // TODO: Clear token/session before navigating
               Navigator.pushReplacementNamed(context, '/login');
             },
           ),
@@ -87,13 +82,12 @@ class StudentDrawer extends StatelessWidget {
     );
   }
 
-  /// ✅ Reusable drawer item builder
   Widget _buildDrawerItem(
-      BuildContext context, {
-        required IconData icon,
-        required String label,
-        required VoidCallback onTap,
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return ListTile(
       leading: Icon(icon, color: Colors.indigo),
       title: Text(label),
