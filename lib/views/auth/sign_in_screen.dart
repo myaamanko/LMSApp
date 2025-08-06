@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lsm/providers/auth_provider.dart';
@@ -18,6 +17,8 @@ class _SignInScreenState extends State<SignInScreen>
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool showPassword = false;
+  bool _isEmailFocused = false;
+  bool _isPasswordFocused = false;
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -99,13 +100,14 @@ class _SignInScreenState extends State<SignInScreen>
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthManager>(context);
+    final theme = Theme.of(context);
 
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
           // Background image with blur
-          Image.asset('assets/images/bg.jpg', fit: BoxFit.cover),
+          Image.asset('assets/images/bg.jpeg', fit: BoxFit.cover),
 
           // Blur effect
           BackdropFilter(
@@ -130,16 +132,13 @@ class _SignInScreenState extends State<SignInScreen>
                             padding: const EdgeInsets.all(32),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              // ignore: deprecated_member_use
                               color: Colors.white.withOpacity(0.15),
                               border: Border.all(
-                                // ignore: deprecated_member_use
                                 color: Colors.white.withOpacity(0.2),
                                 width: 1,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  // ignore: deprecated_member_use
                                   color: Colors.black.withOpacity(0.1),
                                   blurRadius: 20,
                                   spreadRadius: 2,
@@ -158,40 +157,40 @@ class _SignInScreenState extends State<SignInScreen>
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Text(
+                                      Text(
                                         'GAF Login',
-                                        style: TextStyle(
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
+                                        style: theme.textTheme.headlineSmall
+                                            ?.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                       ),
                                       const SizedBox(height: 8),
-                                      const Text(
+                                      Text(
                                         'Enter your credentials to continue',
-                                        style: TextStyle(color: Colors.white70),
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(color: Colors.white70),
                                       ),
                                       const SizedBox(height: 30),
-                                      _buildInput(
-                                        'Email',
-                                        emailController,
-                                        false,
-                                      ),
-                                      const SizedBox(height: 16),
-                                      _buildInput(
-                                        'Password',
-                                        passwordController,
-                                        true,
-                                      ),
+                                      _buildEmailField(),
+                                      const SizedBox(height: 20),
+                                      _buildPasswordField(),
                                       const SizedBox(height: 8),
                                       Align(
                                         alignment: Alignment.centerRight,
-                                        child: Text(
-                                          'Forgot Password?',
-                                          style: TextStyle(
-                                            color: Colors.white.withOpacity(
-                                              0.8,
-                                            ),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            // Handle forgot password
+                                          },
+                                          child: Text(
+                                            'Forgot Password?',
+                                            style: theme.textTheme.bodyMedium
+                                                ?.copyWith(
+                                                  color: Colors.white
+                                                      .withOpacity(0.8),
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                ),
                                           ),
                                         ),
                                       ),
@@ -230,46 +229,87 @@ class _SignInScreenState extends State<SignInScreen>
     );
   }
 
-  Widget _buildInput(
-    String hint,
-    TextEditingController controller,
-    bool isPassword,
-  ) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword && !showPassword,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        hintText: hint,
-        // ignore: deprecated_member_use
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-        suffixIcon:
-            isPassword
-                ? IconButton(
-                  icon: Icon(
-                    showPassword ? Icons.visibility_off : Icons.visibility,
-                    // ignore: deprecated_member_use
-                    color: Colors.white.withOpacity(0.7),
-                  ),
-                  onPressed: () => setState(() => showPassword = !showPassword),
-                )
-                : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          // ignore: deprecated_member_use
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+  Widget _buildEmailField() {
+    return Focus(
+      onFocusChange: (hasFocus) => setState(() => _isEmailFocused = hasFocus),
+      child: TextField(
+        controller: emailController,
+        keyboardType: TextInputType.emailAddress,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: 'Email',
+          labelStyle: TextStyle(
+            color: _isEmailFocused ? Colors.white : Colors.white70,
+          ),
+          prefixIcon: Icon(
+            Icons.email,
+            color: _isEmailFocused ? Colors.white : Colors.white70,
+          ),
+          filled: true,
+          fillColor: Colors.white.withOpacity(0.1),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.transparent),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.white, width: 1.5),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 16,
+            horizontal: 16,
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          // ignore: deprecated_member_use
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
-        ),
-        filled: true,
-        // ignore: deprecated_member_use
-        fillColor: Colors.white.withOpacity(0.1),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
+      ),
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return Focus(
+      onFocusChange:
+          (hasFocus) => setState(() => _isPasswordFocused = hasFocus),
+      child: TextField(
+        controller: passwordController,
+        obscureText: !showPassword,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: 'Password',
+          labelStyle: TextStyle(
+            color: _isPasswordFocused ? Colors.white : Colors.white70,
+          ),
+          prefixIcon: Icon(
+            Icons.lock,
+            color: _isPasswordFocused ? Colors.white : Colors.white70,
+          ),
+          suffixIcon: IconButton(
+            icon: Icon(
+              showPassword ? Icons.visibility_off : Icons.visibility,
+              color: Colors.white70,
+            ),
+            onPressed: () => setState(() => showPassword = !showPassword),
+          ),
+          filled: true,
+          fillColor: Colors.white.withOpacity(0.1),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.transparent),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.white, width: 1.5),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 16,
+            horizontal: 16,
+          ),
         ),
       ),
     );
@@ -279,19 +319,13 @@ class _SignInScreenState extends State<SignInScreen>
     return Row(
       children: [
         Expanded(
-          // ignore: deprecated_member_use
           child: Divider(color: Colors.white.withOpacity(0.3), thickness: 1),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Text(
-            text,
-            // ignore: deprecated_member_use
-            style: TextStyle(color: Colors.white.withOpacity(0.7)),
-          ),
+          child: Text(text, style: const TextStyle(color: Colors.white70)),
         ),
         Expanded(
-          // ignore: deprecated_member_use
           child: Divider(color: Colors.white.withOpacity(0.3), thickness: 1),
         ),
       ],
@@ -308,6 +342,7 @@ class _SignInScreenState extends State<SignInScreen>
           text,
           style: TextStyle(
             color: color == Colors.white ? Colors.black : Colors.white,
+            fontWeight: FontWeight.w500,
           ),
         ),
         onPressed: () {},
@@ -322,6 +357,7 @@ class _SignInScreenState extends State<SignInScreen>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
         ),
       ),
     );
@@ -330,44 +366,51 @@ class _SignInScreenState extends State<SignInScreen>
   Widget _buildSignInButton() {
     return SizedBox(
       width: double.infinity,
-      height: 48,
+      height: 50,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white.withOpacity(0.9),
+          backgroundColor: Colors.white,
           foregroundColor: const Color(0xFF00205B),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          elevation: 2,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(vertical: 14),
         ),
         onPressed: _handleLogin,
         child: const Text(
           'SIGN IN',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            letterSpacing: 1.2,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildSignUpButton() {
-    return TextButton(
-      onPressed:
-          () => Navigator.pushReplacementNamed(context, AppRoutes.signup),
-      child: const Text.rich(
-        TextSpan(
-          text: "Don't have an account? ",
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          "Don't have an account? ",
           style: TextStyle(color: Colors.white70),
-          children: [
-            TextSpan(
-              text: "Sign up Here",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
         ),
-      ),
+        GestureDetector(
+          onTap:
+              () => Navigator.pushReplacementNamed(context, AppRoutes.signup),
+          child: const Text(
+            "Sign up Here",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

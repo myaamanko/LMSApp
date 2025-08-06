@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class StudentDrawer extends StatelessWidget {
   const StudentDrawer({super.key});
@@ -10,7 +11,6 @@ class StudentDrawer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with logo and title
           DrawerHeader(
             margin: EdgeInsets.zero,
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -38,15 +38,11 @@ class StudentDrawer extends StatelessWidget {
               ],
             ),
           ),
-
-          // Menu title
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Text('Menu', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 10),
-
-          // Menu items
           _buildDrawerItem(context, Icons.dashboard, 'Dashboard', '/student-dashboard'),
           _buildDrawerItem(context, Icons.person_outline, 'Teachers', '/teachers'),
           _buildDrawerItem(context, Icons.group_outlined, 'Students', '/students'),
@@ -55,37 +51,32 @@ class StudentDrawer extends StatelessWidget {
           _buildDrawerItem(context, Icons.schedule, 'Time Table', '/timetable'),
           _buildDrawerItem(context, Icons.message_outlined, 'Message', '/messages'),
           _buildDrawerItem(context, Icons.settings_outlined, 'Settings', '/settings'),
-
           const Spacer(),
-
-          // Log out
           Center(
             child: TextButton(
-              onPressed: () {
-                // TODO: Implement logout logic
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
                 Navigator.pop(context);
                 Navigator.pushReplacementNamed(context, '/login');
               },
-              child: const Text(
-                'Log out',
-                style: TextStyle(color: Colors.grey),
-              ),
+              child: const Text('Log out', style: TextStyle(color: Colors.grey)),
             ),
           ),
-
           const SizedBox(height: 16),
         ],
       ),
     );
   }
 
-  /// Helper method to build drawer list tiles
   Widget _buildDrawerItem(BuildContext context, IconData icon, String label, String route) {
     return ListTile(
       leading: Icon(icon),
       title: Text(label),
       trailing: const Icon(Icons.chevron_right),
-      onTap: () => Navigator.pushNamed(context, route),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.pushReplacementNamed(context, route);
+      },
     );
   }
 }

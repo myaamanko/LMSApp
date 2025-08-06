@@ -23,16 +23,27 @@ class StudentDashboard extends StatelessWidget {
     return StreamBuilder<DocumentSnapshot>(
       stream: userDocStream,
       builder: (context, snapshot) {
-        final data = snapshot.data?.data() as Map<String, dynamic>? ?? {};
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return const Scaffold(body: Center(child: Text('Profile not found')));
+        }
+
+        final data = snapshot.data!.data() as Map<String, dynamic>;
         final name = data['name'] ?? 'Student';
+        final imageUrl = data['imageUrl'] ?? '';
         final attendance = data['attendance'] ?? 0;
         final taskCompleted = data['taskCompleted'] ?? 0;
         final taskInProgress = data['taskInProgress'] ?? 0;
         final rewardPoints = data['rewardPoints'] ?? 0;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF6F6FA),
           appBar: AppBar(
+            title: Text('Dashboard'),
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: Builder(
@@ -42,18 +53,15 @@ class StudentDashboard extends StatelessWidget {
                     onPressed: () => Scaffold.of(context).openDrawer(),
                   ),
             ),
-            title: const Text(
-              'Dashboard',
-              style: TextStyle(color: Colors.black),
-            ),
             actions: [
-              CircleAvatar(
-                backgroundColor: Colors.grey.shade300,
-                child: const Icon(Icons.person, color: Colors.black),
-              ),
+              if (imageUrl.isNotEmpty)
+                CircleAvatar(backgroundImage: NetworkImage(imageUrl))
+              else
+                const CircleAvatar(child: Icon(Icons.person)),
               const SizedBox(width: 16),
             ],
           ),
+
           drawer: const StudentDrawer(),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
