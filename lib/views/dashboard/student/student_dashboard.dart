@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import '../../../widgets/student_drawer.dart';
 
 class StudentDashboard extends StatelessWidget {
@@ -9,46 +8,44 @@ class StudentDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 🔐 Get the current logged-in user (from student login)
     final currentUser = FirebaseAuth.instance.currentUser;
 
-    // 🔒 Check if the user is logged in
     if (currentUser == null) {
-      return const Scaffold(
-        body: Center(child: Text('Not logged in')),
-      );
+      return const Scaffold(body: Center(child: Text('Not logged in')));
     }
 
-    // 🔄 Create a real-time stream from the student's Firestore document
-    final userDocStream = FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser.uid) // 👉 uses the current student UID
-        .snapshots(); // 👈 keeps listening for changes
+    final userDocStream =
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .snapshots();
 
     return StreamBuilder<DocumentSnapshot>(
-      stream: userDocStream, // 👈 listening to this student's document
+      stream: userDocStream,
       builder: (context, snapshot) {
-        // 🛡️ If data is not ready yet or missing, use empty map
         final data = snapshot.data?.data() as Map<String, dynamic>? ?? {};
-
-        // ✅ Extract student-specific fields with default values
         final name = data['name'] ?? 'Student';
         final attendance = data['attendance'] ?? 0;
         final taskCompleted = data['taskCompleted'] ?? 0;
         final taskInProgress = data['taskInProgress'] ?? 0;
         final rewardPoints = data['rewardPoints'] ?? 0;
 
-        // 🧱 Full dashboard UI still builds even if data is missing
         return Scaffold(
           backgroundColor: const Color(0xFFF6F6FA),
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.menu, color: Colors.black),
-              onPressed: () {},
+            leading: Builder(
+              builder:
+                  (context) => IconButton(
+                    icon: const Icon(Icons.menu, color: Colors.black),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
             ),
-            title: const Text('Dashboard', style: TextStyle(color: Colors.black)),
+            title: const Text(
+              'Dashboard',
+              style: TextStyle(color: Colors.black),
+            ),
             actions: [
               CircleAvatar(
                 backgroundColor: Colors.grey.shade300,
@@ -57,8 +54,7 @@ class StudentDashboard extends StatelessWidget {
               const SizedBox(width: 16),
             ],
           ),
-
-          // 📦 Main scrollable content
+          drawer: const StudentDrawer(),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -66,9 +62,14 @@ class StudentDashboard extends StatelessWidget {
               children: [
                 _buildSearchBar(),
                 const SizedBox(height: 20),
-                _buildWelcomeCard(name), // 👋 Pass student's name
+                _buildWelcomeCard(name),
                 const SizedBox(height: 20),
-                _buildStatGrid(attendance, taskCompleted, taskInProgress, rewardPoints),
+                _buildStatGrid(
+                  attendance,
+                  taskCompleted,
+                  taskInProgress,
+                  rewardPoints,
+                ),
                 const SizedBox(height: 24),
                 _buildNoticeBoard(),
                 const SizedBox(height: 24),
@@ -79,8 +80,6 @@ class StudentDashboard extends StatelessWidget {
               ],
             ),
           ),
-
-          // 📱 Bottom navigation
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
             currentIndex: 0,
@@ -88,7 +87,10 @@ class StudentDashboard extends StatelessWidget {
             unselectedItemColor: Colors.grey,
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: ''),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.calendar_today),
+                label: '',
+              ),
               BottomNavigationBarItem(icon: Icon(Icons.chat), label: ''),
               BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
             ],
@@ -98,7 +100,6 @@ class StudentDashboard extends StatelessWidget {
     );
   }
 
-  // 🔍 UI for search bar
   Widget _buildSearchBar() {
     return Row(
       children: [
@@ -117,12 +118,11 @@ class StudentDashboard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        const Icon(Icons.notifications_none)
+        const Icon(Icons.notifications_none),
       ],
     );
   }
 
-  // 🙋 Welcome message using student name
   Widget _buildWelcomeCard(String name) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -136,13 +136,18 @@ class StudentDashboard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Hey $name.',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  'Hey $name.',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 6),
                 const Text(
-                    "Welcome back! Let's dive into your classes and keep moving toward your goals.",
-                    style: TextStyle(color: Colors.black54)),
+                  "Welcome back! Let's dive into your classes and keep moving toward your goals.",
+                  style: TextStyle(color: Colors.black54),
+                ),
               ],
             ),
           ),
@@ -152,8 +157,12 @@ class StudentDashboard extends StatelessWidget {
     );
   }
 
-  // 📊 Student stats grid (attendance, tasks, rewards)
-  Widget _buildStatGrid(int attendance, int taskCompleted, int taskInProgress, int rewardPoints) {
+  Widget _buildStatGrid(
+    int attendance,
+    int taskCompleted,
+    int taskInProgress,
+    int rewardPoints,
+  ) {
     final stats = [
       {'title': '$attendance%', 'label': 'Attendance'},
       {'title': '$taskCompleted+', 'label': 'Task Completed'},
@@ -182,12 +191,18 @@ class StudentDashboard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(stats[index]['title']!,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                stats[index]['title']!,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(stats[index]['label']!,
-                  style: const TextStyle(color: Colors.black54)),
+              Text(
+                stats[index]['label']!,
+                style: const TextStyle(color: Colors.black54),
+              ),
             ],
           ),
         );
@@ -195,7 +210,6 @@ class StudentDashboard extends StatelessWidget {
     );
   }
 
-  // 🗞️ Notices
   Widget _buildNoticeBoard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +217,10 @@ class StudentDashboard extends StatelessWidget {
         const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Notice Board', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              'Notice Board',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             Text('view all', style: TextStyle(color: Colors.indigo)),
           ],
         ),
@@ -211,31 +228,36 @@ class StudentDashboard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(12)),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: const Column(
             children: [
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/notice1.png')),
-                title: Text("The school's Annual Sports Day will be held on May 12, 2024."),
+                  backgroundImage: AssetImage('assets/images/notice1.png'),
+                ),
+                title: Text(
+                  "The school's Annual Sports Day will be held on May 12, 2024.",
+                ),
                 subtitle: Text('1h ago · by Principal'),
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/notice2.png')),
+                  backgroundImage: AssetImage('assets/images/notice2.png'),
+                ),
                 title: Text("Summer Holiday begins on May-25, 2024."),
                 subtitle: Text('3h ago · by Principal'),
-              )
+              ),
             ],
           ),
-        )
+        ),
       ],
     );
   }
 
-  // 📈 Placeholder for future chart integration
   Widget _buildTestScoreActivity() {
     return Container(
       width: double.infinity,
@@ -247,32 +269,29 @@ class StudentDashboard extends StatelessWidget {
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Test Score activity',
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            'Test Score activity',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           SizedBox(height: 16),
-          Placeholder(fallbackHeight: 100)
+          Placeholder(fallbackHeight: 100),
         ],
       ),
     );
   }
 
-  // 📚 Resources tiles
   Widget _buildResources() {
     final items = [
-      {
-        'title': 'Books',
-        'icon': Icons.menu_book,
-        'color': Colors.pink.shade50
-      },
+      {'title': 'Books', 'icon': Icons.menu_book, 'color': Colors.pink.shade50},
       {
         'title': 'Videos',
         'icon': Icons.play_circle_fill,
-        'color': Colors.green.shade50
+        'color': Colors.green.shade50,
       },
       {
         'title': 'Papers',
         'icon': Icons.description,
-        'color': Colors.purple.shade50
+        'color': Colors.purple.shade50,
       },
     ];
 
@@ -282,34 +301,40 @@ class StudentDashboard extends StatelessWidget {
         const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Resources', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              'Resources',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             Text('view all', style: TextStyle(color: Colors.indigo)),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: items.map((item) {
-            return Expanded(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 6),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: item['color'] as Color,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                    Icon(item['icon'] as IconData, size: 36),
-                    const SizedBox(height: 8),
-                    Text(item['title'] as String,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-        )
+          children:
+              items.map((item) {
+                return Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: item['color'] as Color,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(item['icon'] as IconData, size: 36),
+                        const SizedBox(height: 8),
+                        Text(
+                          item['title'] as String,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+        ),
       ],
     );
   }
